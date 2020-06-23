@@ -45,8 +45,48 @@
 - 实例都包含一个指向原型对象的内部指针
 
 同样上个图说明一下：
+![](./原型链.png)
 
+在这个例子中，我们创建了两个构造函数，两个实例，通过重写子类的原型对象，构建了一条原型链
+```javascript
+// 定义两个构造函数
+function SuperType () {
+  this.name = 'super'
+  this.superValue = true
+}
+function SubType() {
+  this.name = 'sub'
+  this.superValue = false
+}
 
+// 在SuperType的原生的原型对象上添加方法
+SuperType.prototype.getSuperValue = function() {
+  console.log(this.superValue)
+}
+// 在SubType的原生的原型对象上添加方法
+SubType.prototype.getSubValue = function() {
+  console.log(this.superValue)
+}
 
+const superInstance = new SuperType()
+
+// 将SubType的原生对象重写为SuperType的实例
+SubType.prototype = superInstance
+
+// 
+SubType.prototype.getName = function() {
+  console.log(this.name)
+}
+const subInstance = new SubType()
+
+superInstance.getSuperValue()
+superInstance.getName() 
+
+subInstance.getSuperValue()
+subInstance.getName()
+
+subInstance.getSubValue()
+
+```
 
 
