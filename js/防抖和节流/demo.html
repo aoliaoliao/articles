@@ -11,6 +11,7 @@
       width: 300px;
       height: 500px;
       overflow: auto;
+      border: 1px solid #333333;
     }
   </style>
 </head>
@@ -19,6 +20,131 @@
   <div id="debounce">
 
   </div>
+
+  <script type="text/javascript">
+    let num = 1;
+    let content = document.getElementById('debounce');
+
+    function count() {
+      content.innerHTML = num++;
+    };
+
+    // 非立即执行
+    const debounce = (fn, wait) => {
+      let timeoutID = null
+      return function () {
+        if (timeoutID !== null) {
+          clearTimeout(timeoutID)
+        }
+        timeoutID = setTimeout(fn, wait)
+      }
+    }
+
+    //立即执行
+    function debounce1(fun, delay) {
+      let timeout;
+      return function () {
+        let _this = this;
+        let arg = arguments;
+
+        if (timeout) clearTimeout(timeout);
+
+        let applyNow = !timeout;
+
+        timeout = setTimeout(() => {
+          timeout = null;
+        }, delay)
+
+        if (applyNow) {
+          fun.apply(_this, arg);
+        }
+      }
+    }
+
+    // 综合版
+    const debounce2 = (fn, wait, immediate) => {
+      let timeoutID = null
+
+      return function () {
+        const _this = this
+        const arg = arguments
+
+        if (timeoutID) {
+          clearTimeout(timeoutID)
+        }
+
+        if (immediate) {
+          let isExecute = !timeoutID
+          if (isExecute) {
+            fn.apply(_this, arg)
+          }
+          timeoutID = setTimeout(() => {
+            timeoutID = null
+          }, wait)
+        } else {
+          timeoutID = setTimeout(fn, wait, ...arg)
+        }
+      }
+    }
+
+    const throttle = (fn, delay) => {
+      let lastTime = 0
+      return function () {
+        let _this = this
+        let arg = arguments
+
+        const now = Date.now()
+
+        if (now - lastTime > delay) {
+          fn.apply(_this, arg)
+          lastTime = now
+        }
+      }
+    }
+
+    const throttle1 = (fn, delay) => {
+      let timeoutID = null
+      return function () {
+        let _this = this
+        let arg = arguments
+
+        if (!timeoutID) {
+          timeoutID = setTimeout(() => {
+            fn.apply(_this, arg)
+            timeoutID = null
+          }, delay)
+        }
+      }
+    }
+
+    const throttle2 = (fn, delay, immediate) => {
+      let timeoutID = null
+      let lastTime = 0
+      return function () {
+        const _this = this
+        const arg = arguments
+
+        if (immediate) {
+          const now = Date.now()
+          if (now - lastTime > delay) {
+            fn.apply(_this, arg)
+            lastTime = now
+          }
+        } else {
+          if (!timeoutID) {
+            timeoutID = setTimeout(() => {
+              fn.apply(_this, arg)
+              timeoutID = null
+            }, delay)
+          }
+        }
+      }
+    }
+
+
+
+    content.onmousemove = throttle2(count, 1000, true);
+  </script>
 </body>
 
 </html>

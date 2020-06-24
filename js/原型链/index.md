@@ -39,13 +39,13 @@
 
 实现原型链的基本思想是更改构造函数的原型对象指向其父级的一个实例，也就是说其本质是重写了原型对象。
 
-再次总结一下`构造函数``原型``实例`三者的关系：
+再次总结一下`构造函数`,`原型`,`实例`三者的关系：
 - 每个构造函数都有一个原型对象
 - 原型对象都包含一个指向构造函数的指针
 - 实例都包含一个指向原型对象的内部指针
 
 同样上个图说明一下：
-![](./原型链.png)
+![原型链](./原型链.png)
 
 在这个例子中，我们创建了两个构造函数，两个实例，通过重写子类的原型对象，构建了一条原型链
 ```javascript
@@ -73,19 +73,19 @@ const superInstance = new SuperType()
 // 将SubType的原生对象重写为SuperType的实例
 SubType.prototype = superInstance
 
-// 
+// 在SubType新的原型对象上添加一个方法
 SubType.prototype.getName = function() {
   console.log(this.name)
 }
 const subInstance = new SubType()
 
-superInstance.getSuperValue()
-superInstance.getName() 
+superInstance.getSuperValue() // true
+superInstance.getName() // super
 
-subInstance.getSuperValue()
-subInstance.getName()
+subInstance.getSuperValue() // false
+subInstance.getName() // sub
 
-subInstance.getSubValue()
+subInstance.getSubValue() // subInstance.getSubValue is not a function
 
 ```
 
