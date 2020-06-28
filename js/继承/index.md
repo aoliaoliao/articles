@@ -18,13 +18,16 @@
 
 我们定义两个构造函数，`SuperType()`  和 `SubType()`, 通过在子构造函数中调用父构造函数，可以将父类中所有的属性和方法绑定到子类的实例中，**这也就是经典继承的实现方法**
 
-但同时，我们也知道，对于父类中属性应该在子类中复制一遍，但父类中的方法其实没有必要，我们可以借助原型链的工作原理，让子类和父类共享方法，**这就是组合继承的做法**
+但同时，我们也知道，对于父类中属性和方法，有部分是私有的，但还有一些其实是可以共享的，可以公用的，我们可以借助原型链的工作原理，让子类和父类共享部分属性和方法，**这就是组合继承的做法**
 
 ```javascript
 
 function SuperType(name) {
   this.name = name
   this.colors = ['red', 'blue', 'green']
+  this.sayFirstColor = function() {
+    console.log(this.colors[0])
+  }
 }
 
 SuperType.prototype.sayName = function() {
@@ -63,8 +66,6 @@ subInstance2.sayAge() // 18
 
 继承这个概念是在了解了原型链之后才进行学习的，所以很自然的我们会直接实现这种所谓的组合继承。
 将属性在实例中进行私有化，将方法保留在父级的原型对象中，通过重定义子类的原型对象实现方法共享。
-
-![实例对象1](./继承1.png) ![实例对象2](./继承2.png)
 
 
 在控制台中进行查看, 可以看到子类的实例中拥有了父类的属性`colors`, `name`, `sayName`方法则还是存在与父级，子类通过原型链进行查找调用。
@@ -121,12 +122,83 @@ subInstance1.sayName === subInstance2.sayName // false
 
 # 寄生组合式继承
 
+这是一种结合上述各种方式优点的做法。
+
+在组合继承中，有一点不好的就是需要调用两次父构造函数，一次是更改子类型实例的原型,这使得子类实例可以使用父类的方法
+```javascript
+const superInstance = new SuperType()
+SubType.prototype = superInstance
+```
+一次是在子类型的构造函数函数中，这使得子类实例中拥有了父类的属性和方法
+```javascript
+function SubType( name, age ) {
+  // 继承父类中的属性
+  SuperType.call(this, name)
+  // ...
+}
+```
+![组合继承](./组合继承.png)
+
+查看组合继承实例的结构图，我们发现子类实例的属性和方法在它的原型链上游也有一份一模一样的，这其实不是很必要的，因为我们只对最终的子类进行了实例化，所以理论上应该是只有子类的实例化上才具备这些属性和方法，但因为我们将`superInstance`作为`SubType`的原型对象，所以`subInstance1`的原型链上游出现了一模一样的属性和方法。
+
+我们可以结合寄生组合式继承的方法对其进行一下改进：
+
+```javascript 
+
+// 创建两个构造函数
+function SuperType(name) {
+  this.name = name
+  this.colors = ['red', 'blue', 'green']
+  this.sayFirstColor = function() {
+    console.log(this.colors[0])
+  }
+}
+
+SuperType.prototype.sayName = function() {
+  console.log(this.name)
+}
+
+function SubType( name, age ) {
+  // 继承父类中的属性
+  SuperType.call(this, name)
+  this.age = age
+}
+
+// 原型式继承
+function object(original) {
+  function F() {}
+  F.prototype = original
+  return new F()
+} 
+
+function inheritPrototype(child, parent) {
+  const prototype = object(parent.prototype)
+  prototype.constructor = child
+  child.prototype = prototype
+}
+
+// 使用
+inheritPrototype(SubType, SuperType);
+
+// 验证
+
+const subInstance1 = new SubType('Tom', 25)
+
+```
+通过结合原型式继承，将父类的原型对象备份之后作为子类的原型对象，避免了对父类进行两次实例化，使得最终实例的原型链更加纯净。
+
+![寄生组合继承](./寄生组合继承.png)
+
+这种模式的继承只调用了一次父类构造函数，保证了原型链的纯洁，与此同时，原型链还能保持不变，不会影响 `instanceof` 和 `isPrototypeOf` 等方法的使用。
 
 
+实际开发中，我们可以根据业务场景灵活的使用各种模式，但如果需要封装一个全局性的继承方法，我们理所当然的要用最后一种方式。
 
 
+# ES6中的继承
 
 
+# TS中的继承
 
 
 
