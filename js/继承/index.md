@@ -192,16 +192,98 @@ const subInstance1 = new SubType('Tom', 25)
 这种模式的继承只调用了一次父类构造函数，保证了原型链的纯洁，与此同时，原型链还能保持不变，不会影响 `instanceof` 和 `isPrototypeOf` 等方法的使用。
 
 
-实际开发中，我们可以根据业务场景灵活的使用各种模式，但如果需要封装一个全局性的继承方法，我们理所当然的要用最后一种方式。
+实际开发中，我们可以根据业务场景灵活的使用各种模式，但如果需要封装一个全局性的继承方法，我们最后是用最后一种方式。
 
 
 # ES6中的继承
+在ES6中引入了`class`类的概念，我们只需要通过 `extends` 关键字就可以实现继承
+
+```javascript
+class Parent {
+}
+
+class Child extends Parent {
+}
+```
+
+通过ES6进行编程的时候，我们自然可以这么做，但现如今的环境下，并不是所有的运行环境都能支持ES6的语法，很多时候，我们还是需要将其转换为ES5，然后才能发布。
+
+借助于`babel`我们可以实现这一转换，我们观察一下`babel`是如何实现继承这一功能的, 代码简化如下：
+
+```javascript 
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+  subClass.prototype = Object.create(
+    superClass && superClass.prototype,
+    {
+      constructor: { value: subClass, enumerable: false, writable: true, configurable: true }
+    });
+  if (superClass)
+    Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+var SubType = function (_SuperType) {
+  _inherits(SubType, _SuperType);
+
+  function SubType(name, age) {
+    (SubType.__proto__ || Object.getPrototypeOf(SubType)).call(this, name) 
+    this.age = age;
+    return this;
+  }
+
+  _createClass(SubType, [{
+    key: 'sayAge',
+    value: function sayAge() {
+      console.log(this.age);
+    }
+  }]);
+
+  return SubType;
+}(SuperType); 
+```
+
+可以看出这里实现继承的基本思想是采用了**寄生组合式继承**， `_inherits`方法重置了`SubType`的原型对象`_SuperType.prototype`，而在`SubType`的构造方法内部，调用了父类构造方法`SubType.__proto__`，将父类构造方法中的属性和方法绑定到子类实例。
 
 
 # TS中的继承
 
+ts是js的超集，基本包含所有最新的JS语法，所以，在TS中，也可以直接通过`extends`实现继承。
 
+我们还是看一下ts被转换成JS之后是如何实现继承的，代码如下：
 
+```javascript
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+
+var SubType = (function (_super) {
+    __extends(SubType, _super);
+    function SubType(name, age) {
+        var _this = _super.call(this, name) || this;
+        _this.age = age;
+        return _this;
+    }
+    SubType.prototype.sayAge = function () {
+        console.log(this.age);
+    };
+    return SubType;
+}(SuperType)); 
+
+```
+
+和上文`babel`的处理方式大同小异，通过`__extends`实现子类原型对象的更换，在子类构造方法内部调用父类的构造方法实现父类属性和方法在子类实例上的绑定。
 
 
 
