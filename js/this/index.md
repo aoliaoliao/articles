@@ -104,12 +104,12 @@ function bar() {
 
 foo.fun() // `fun` 是一个属性访问器，所以`ref`是引用类型，那么对应 fun 的GetBase是 foo, 所以 this的值是 foo
 
-bar() // `bar`是一个标识符，所以`ref`是引用类型，对应 bar 的GetBase是 window, 所以 this的值是 window
+bar() // `bar`是一个标识符，所以`ref`是引用类型，对应 bar 的GetBase是 Environment Record, 所以 this的值是 window
 
 // 以下三例均有`GetValue`参与，所以`ref`都不是引用类型
 (foo.bar = foo.bar)(); // window
 (false || foo.bar)(); // window
-(foo.bar, foo.bar)(); // global?
+(foo.bar, foo.bar)(); // window
 
 ```
 
