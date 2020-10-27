@@ -212,23 +212,17 @@ semver做为一个语义化的包版本规范，**版本号的改变具备重要
 
 
 
-
-
-
-
-
-
-### Git 提交记录和版本规范
+### Git 提交规范
 
 Git 做为开发过程中一个高频操作，一个纯人工操作，最好也是要遵守一定的规范。践行一个标准的规范可以给我们提供不少的方便：
 
 - 规范的提交记录可以直接从commit 生成Change log(发布时用于说明版本差异)
 
-- 方便快速回溯提交记录
+- 触发构建和部署流程
 
-- 基于提交类型自动维护版本号
+- 基于提交的类型，自动决定语义化的版本变更。
 
-社区现在最流行的规范是[Angular Git 提交 规范](https://zj-git-guide.readthedocs.io/zh_CN/latest/message/Angular%E6%8F%90%E4%BA%A4%E4%BF%A1%E6%81%AF%E8%A7%84%E8%8C%83/)。
+社区现在最流行的规范是[约定式提交规范Conventional Commits](https://www.conventionalcommits.org/zh-hans/v1.0.0-beta.4/), 其脱胎于`Angular Git 提交 规范`。
 
 ##### 规范格式
 
@@ -262,7 +256,11 @@ Header部分只有一行，包括三个部分：`type`（必须）, `(scope)`（
 - scope 用于说明本次commit的影响范围，只要是能让本项目的人员理解就可以
 - subject 是commit目的的简短描述
 
-type 枚举值有：
+types值的类型随着规范的发展可能会有修改，截至到笔者写作时，Conventional 规定的[完整的规范有这些](./assets/commit-type.json) 。
+
+ 当然，如果项目需要，我们也可以自定义一套我们自己的提交规范，就像 Conventional 一样， 在这套规范中，除了`feat` 和 `fix` ，我们可以定义自己需要的type。
+
+type 枚举值常用的有：
 1. feat： 新功能
 2. fix: bug修复
 3. docs: 文档或注释的变动
@@ -272,26 +270,133 @@ type 枚举值有：
 7. chore: 构建过程或辅助工具的变动 
 
 
+##### Git规范和SemVer的关系
+
+git约定的这个规范和 SemVer 有什么关联呢？关系就是我们可以借助每次git提交的规范自动维护语义化版本号。
+
+fix 类型提交应当对应到 `PATCH` 版本。feat 类型提交应该对应到 `MINOR` 版本。带有 BREAKING CHANGE 的提交不管类型如何，都应该对应到 `MAJOR` 版本。
 
 
+在项目开发过程中，经常会有这样的疑惑，**如果提交符合多种类型我该如何操作？** 官方给出的回答是：回退并尽可能创建多次提交。约定式提交的好处之一是能够促使我们做出更有组织的提交和 PR。
+
+如果我不小心使用了错误的提交类型，该怎么办呢？当你使用了在规范中但错误的类型时，例如将 feat 写成了 fix
+在合并或发布这个错误之前，我们建议使用 git rebase -i 来编辑提交历史。而在发布之后，根据你使用的工具和流程不同，会有不同的清理方案。参考上一节对错误版本号的处理。
+
+##### Git规范约束工具之 commitizen
+
+[commitizen](https://github.com/commitizen/cz-cli)是一个提交日志工具，辅助开发者使用提交规则。它本身是支持多种不同的提交规范的，只需要安装和配置不同的适配器。
+
+本文自然以 Conventional 为例，讲解一下具体如何使用。
+
+```bash
+// 首先全局安装 commitizen
+npm install commitizen -g
+
+// 在项目中配置 Conventional 规范
+commitizen init cz-conventional-changelog --save-dev --save-exact
+```
+配置完成之后，以后每次提交可以使用`git cz` 代替`git commit`。 `git cz` 会有一个交互式界面辅助进行符合规范的提交。
+
+![commitizen](./images/commitizen.png)
 
 
+##### Git规范约束工具之 CommitLint
+
+每次使用交互界面提交效率其实并不高，所以社区给出了另一种方案[commitlint](https://github.com/conventional-changelog/commitlint)， 看名字也能看出来是一种Lint检查。它通过校验每次提交的内容是否符合格式来判断是否放行本次提交。
+
+```bash
+// 本地安装命令行工具
+npm install @commitlint/cli -D
+
+// 本地安装Conventional配置
+npm install @commitlint/config-conventional -D
+
+```
+
+commitlint做为一个命令行工具，具体的配置可以查看[这里](https://commitlint.js.org/#/reference-cli)
 
 
+除了 Conventional 规范，还有下列提交规范可以选，这些规范分别使用于不同的场景：
+@commitlint/config-angular
+@commitlint/config-lerna-scopes
+@commitlint/config-patternplate
+conventional-changelog-lint-config-atom
+conventional-changelog-lint-config-canonical
+commitlint-config-jira
 
+安装对应的npm之后，在项目根目录下新建`commitlint.config.js`文件，文件内容：
+```javascript
+module.exports = {extends: ['@commitlint/config-conventional']};
+```
+或者在根目录下的`package.json`文件内，新建字段：
+```json
+{
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  }
+}
+```
 
-[npm包如何进行版本管理](http://www.conardli.top/blog/article/%E5%89%8D%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%8C%96/%E5%89%8D%E7%AB%AF%E5%B7%A5%E7%A8%8B%E5%8C%96%EF%BC%88%E4%B8%80%EF%BC%89npm%E5%8C%85%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%EF%BC%9F.html)
+安装完commitlint之后，还需要一个工具：[husky](https://docs.breword.com/typicode-husky)
 
+```bash
+npm install husky -D
 
-[规范GIT代码提交信息&自动化版本管理](https://aotu.io/notes/2020/09/10/git-commit-control/)
+```
+安装husky之后会在项目的`.git/hooks`目录下生成所有的hook脚本。
+![husky](./images/husky.png)
 
+在`package.json`中配置对应的钩子之后，项目在执行git操作之时会触发对应钩子的脚本
 
-[Commit message 和 Change log 编写指南](http://www.ruanyifeng.com/blog/2016/01/commit_message_change_log.html)
+```json
+{
+  "husky": {
+    "hooks": {
+        "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    } 
+  }
+}
 
+```
+`HUSKY_GIT_PARAMS` 是husky定义的环境变量。它指向路径`.git/COMMIT_EDITMSG` 代表最后一次提交时输入的信息。
 
+### 版本管理工具lerna
+
+参考文章：
 [手摸手教你玩转 Lerna](http://blog.runningcoder.me/2018/08/17/learning-lerna/)
-
 [lerna 中文文档](https://github.com/minhuaF/blog/issues/2)
+
+什么是lerna ?
+
+> Lerna is a tool that optimizes the workflow around managing multi-package
+repositories with git and npm.
+
+[lerna](https://github.com/lerna/lerna) 是一种工具，用于优化使用git和npm管理多包存储库的工作流程。
+
+##### Monorepo VS Multirepo
+
+Monorepo 指单体式仓库，是指把所有可以发布的包都放到一个项目中进行管理，例如Babel。
+
+Multirepo 指多体式仓库，是指每一个可以发布的包都是一个单独的项目，例如webpack。
+
+二者的优缺点都比较明显。在公司的一个部门内，基于业务关系而划分的各种模块一般比较使用使用 Monorepo 
+
+
+##### lerna 的使用场景
+
+##### lerna 可以做什么
+
+
+##### lerna 如何使用
+
+lerna的重心是用于多包管理。
+
+
+
+
+
 
 
 

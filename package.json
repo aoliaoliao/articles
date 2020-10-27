@@ -1,0 +1,38 @@
+{
+  "name": "articles",
+  "version": "0.0.1",
+  "description": "学习笔记",
+  "main": "index.js",
+  "dependencies": {
+    "commitizen": "^4.2.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^4.3.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aoliaoliao/articles.git"
+  },
+  "author": "aoliaoliao",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aoliaoliao/articles/issues"
+  },
+  "homepage": "https://github.com/aoliaoliao/articles#readme",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }  
+}
+}
