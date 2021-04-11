@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "学习笔记",
   "main": "index.js",
+  "type": "module",
   "dependencies": {
     "commitizen": "^4.2.2"
   },

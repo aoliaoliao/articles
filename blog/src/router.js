@@ -1,0 +1,28 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+const Home = () => import('./views/Home.vue')
+const Item = () => import('./views/Item.vue')
+import Layout from './components/layout/Index.vue'
+
+Vue.use(Router)
+
+export function createRouter(){
+  return new Router({
+    mode: 'history',
+    routes: [
+      {
+        path: '/',
+        component: Home,
+        // redirect: '/home',
+        // children: [
+        //   {
+        //     path: '/home',
+        //     component: Home
+        //   }
+        // ]
+      }
+      // { path: '/', component: Home },
+      // { path: '/item/:id', component: Item }
+    ]
+  })
+}

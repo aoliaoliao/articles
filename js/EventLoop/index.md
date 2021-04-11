@@ -72,7 +72,7 @@ console.log(7);
 1. `setTimeout`是异步方法，所以其中的任务会被线程挂起。在‘0ms（实际是4ms）’之后，会将一个事件放到**Macro Task Queue**
 2. 代码继续执行，第一个`new Promise`其属于“全局执行上下文”，所以讲全局上下文压入栈，然后将Promise构造函数中的方法所属的“执行上下文”压入栈顶，并开始`console.log(2)`和`resolve()`。`reslove`通知线程被挂起的异步任务已经有了结果，线程会在**Micro Task Queue**中放一个事件，对应着then方法中的回调。最后，执行完毕之后出栈。 这一步，输出2 
 3. 第二个 `new Promise` 也同理，输出 4，但不同的一点是在`then`方法中的`setTimeout`会被挂起，并将一个消息放入**Macro Task Queue**，此时宏任务队列中有了两个事件。
-4. console.log 属于全局执行上下文，将其压入栈顶，并在执行完毕之后弹出，输出6
+4. console.log 属于全局执行上下文，将其压入栈顶，并在执行完毕之后弹出，输出7
 5. 至此，同步任务执行完毕，线程开始读取任务队列中的事件。
 6. 首先从**Micro Task Queue**中读取第一个Promise中then方法对应的回调，输出 3
 7. 从**Micro Task Queue**中读取第二个Promise中then方法对应的回调，输出 5
