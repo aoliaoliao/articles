@@ -141,11 +141,12 @@ export default class LinkedList {
     let nextNode = null
 
     while (currNode) {
-      nextNode = currNode.next
-      currNode.next = prevNode
-      
-      prevNode = currNode
-      currNode = nextNode
+      nextNode = currNode.next  // 记录初始链表的下一个节点
+
+      currNode.next = prevNode  // 更新当前节点
+      prevNode = currNode // 将更新后的当前节点作为新链表中的【下一节点】
+
+      currNode = nextNode // 重新赋值当前节点，开始下一循环
     }
 
     this.tail = this.head

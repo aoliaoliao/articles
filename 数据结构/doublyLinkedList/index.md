@@ -1,6 +1,6 @@
 [双向链表](https://github.com/trekhleb/javascript-algorithms/blob/master/src/data-structures/doubly-linked-list/README.zh-CN.md)
 
-相比余链表，双向链表在每个节点中都包含了他的上下游节点的信息。这也使得对双向链表进行的添加或删除操作，要更加复杂
+相比单链表，双向链表在每个节点中都包含了他的上下游节点的信息。这也使得对双向链表进行的添加或删除操作，要更加复杂
 
 
 
